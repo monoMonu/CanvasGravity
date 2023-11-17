@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+ <head>
+ 
+   <title> Canvas - Gravity</title>
+   <style type="text/css">
+   
+*{
+   margin:0;
+   padding:0;
+}
+canvas{
+   display:block;
+   background:#22222b;
+}
+   
+   </style>
+ </head>
+ <body>
+   
+   <canvas id="canvas"></canvas>
+   
+    
+ <script>
+
+ //---Variables Declaration---//
+ var canvas = document.querySelector("#canvas");
+ var ctx = canvas.getContext("2d");
+ var cw = canvas.width = window.innerWidth;
+ var ch = canvas.height = window.innerHeight;
+ var gravity = 1, friction = 0.95;
+ var ballColor = new Array("#FC8585","#FFC86D","#FBDBA2","#F6EADB","#85CBD9");
+ 
+ //---Resize for responsiveness---//
+ window.addEventListener("resize",()=>{
+   cw = canvas.width = window.innerWidth;
+   ch = canvas.height = window.innerHeight;
+   init();
+ })
+ 
+ //---Random Number from min to max---//
+ function getRandom(min=0,max){
+   return min + +Math.floor(Math.random()*(max-min));
+ }
+ 
+ //---Random Color Generator---//
+ function randColor(){
+   return "#"+Math.floor(getRandom(0,Math.pow(16,6))).toString(16);
+ }
+
+ 
+ function Ball(x,y,dx,dy,radius,color){
+   
+   this.radius = radius;
+   this.x = x;
+   this.y = y;
+   this.dx = dx;
+   this.dy = dy;
+   this.color = color;
+   
+   //--- Ball Draw Function ---//
+   this.draw = function(){
+     
+     ctx.beginPath();
+     ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);
+     ctx.fillStyle = this.color;
+     ctx.fill();
+     
+   }
+   
+   //--- Ball Update function ---//
+   this.update = function(){
+     if(this.x + this.radius >= cw || this.x - this.radius <= 0){
+        this.dx = -this.dx;
+     }
+     if(this.y + this.radius + this.dy >= ch){
+        this.dy = -this.dy*friction;
+     }
+     else{
+        this.dy+=gravity;
+     }
+     this.x+=this.dx;
+     this.y+=this.dy;
+     this.draw();
+     
+   }
+   
+ }
+ 
+ //---Creating Array of new Ball Object---//
+ var ballArray;
+ 
+ function init(){
+    
+    ballArray = [];
+    
+    for(let i=0;i<100;i++){
+       var radius = getRandom(12,20),
+           x = getRandom(radius,cw-radius),
+           y = getRandom(radius,ch-radius),
+           dx = getRandom(-2,2),
+           dy = getRandom(-2,2),
+           color = ballColor[getRandom(0,ballColor.length)];
+       ballArray.push(new Ball(x,y,dx,dy,radius,color))
+    }
+ 
+ }
+ 
+ //--- Function to animate ---//
+ function animate(){
+    ctx.clearRect(0,0,cw,ch);
+    for(let i=0;i<ballArray.length;i++){
+       ballArray[i].update();
+    }
+    window.requestAnimationFrame(animate);
+ }
+ 
+ init();
+ animate();
+ 
+ 
+ </script>
+ </body>
+ 
+</html>
